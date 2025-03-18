@@ -2,6 +2,28 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MockedProvider } from "@apollo/client/testing";
 import CreateNoteForm from "@/components/CreateNoteForm";
 import { CREATE_NOTE } from "@/graphql/mutations";
+import { FETCH_NOTES } from "@/graphql/queries";
+
+const fetchNotesMock = {
+  request: {
+    query: FETCH_NOTES,
+    variables: {},
+  },
+  result: {
+    data: {
+      notes: [
+        {
+          id: "1",
+          title: "Test Note",
+          body: "This is a test note.",
+          sentimentScore: 1.0,
+          sentimentLabel: "Positive",
+        },
+      ],
+    },
+  },
+};
+
 
 const mockMutation = {
   request: {
@@ -21,7 +43,7 @@ const mockMutation = {
 describe("CreateNoteForm", () => {
   it("renders the form and submits a new note", async () => {
     render(
-      <MockedProvider mocks={[mockMutation]} addTypename={false}>
+      <MockedProvider mocks={[fetchNotesMock, mockMutation]} addTypename={false}>
         <CreateNoteForm />
       </MockedProvider>
     );

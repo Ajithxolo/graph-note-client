@@ -4,6 +4,19 @@ import DeleteNoteButton from "@/components/DeleteNoteButton";
 import { DELETE_NOTE } from "@/graphql/mutations";
 import { FETCH_NOTES } from "@/graphql/queries";
 
+const fetchNotesMock = {
+  request: {
+    query: FETCH_NOTES,
+    variables: {},
+  },
+  result: {
+    data: {
+      notes: [],
+    },
+  },
+};
+
+
 const mockMutation = {
   request: {
     query: DELETE_NOTE,
@@ -19,7 +32,7 @@ const mockMutation = {
 describe("DeleteNoteButton", () => {
   it("deletes a note successfully", async () => {
     render(
-      <MockedProvider mocks={[mockMutation]} addTypename={false}>
+      <MockedProvider mocks={[fetchNotesMock, mockMutation]} addTypename={false}>
         <DeleteNoteButton noteId="1" />
       </MockedProvider>
     );

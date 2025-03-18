@@ -4,6 +4,26 @@ import EditNoteForm from "@/components/EditNoteForm";
 import { UPDATE_NOTE } from "@/graphql/mutations";
 import { FETCH_NOTES } from "@/graphql/queries";
 
+const fetchNotesMock = {
+  request: {
+    query: FETCH_NOTES,
+    variables: {},
+  },
+  result: {
+    data: {
+      notes: [
+        {
+          id: "1",
+          title: "Updated Title",
+          body: "Updated body.",
+          sentimentScore: 0.8,
+          sentimentLabel: "Neutral",
+        },
+      ],
+    },
+  },
+};
+
 const mockNote = { id: "1", title: "Old Title", body: "Old body" };
 
 const mockMutation = {
@@ -26,7 +46,7 @@ describe("EditNoteForm", () => {
     const mockOnClose = jest.fn();
 
     render(
-      <MockedProvider mocks={[mockMutation]} addTypename={false}>
+      <MockedProvider mocks={[fetchNotesMock, mockMutation]} addTypename={false}>
         <EditNoteForm note={mockNote} onClose={mockOnClose} />
       </MockedProvider>
     );
