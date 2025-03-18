@@ -2,8 +2,8 @@
 import { gql } from '@apollo/client';
 
 export const FETCH_NOTES = gql`
-  query fetchNotes {
-    notes {
+  query  {
+    fetchNotes {
       id
       title
       body
