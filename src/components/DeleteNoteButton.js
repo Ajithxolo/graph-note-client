@@ -13,7 +13,15 @@ const DeleteNoteButton = ({ noteId }) => {
   };
 
   return (
-    <button onClick={handleDelete} disabled={loading} className="btn btn-danger">
+    <button
+      onClick={handleDelete}
+      disabled={loading}
+      className={`px-3 py-1 text-sm rounded ${
+        loading 
+          ? 'bg-gray-400 cursor-not-allowed'
+          : 'bg-red-500 hover:bg-red-600 text-white'
+      }`}
+    >
       {loading ? "Deleting..." : "Delete"}
     </button>
   );

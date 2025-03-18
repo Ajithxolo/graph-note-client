@@ -12,7 +12,13 @@ const NotesPage = () => {
       <h1 className="text-xl font-bold">GraphQL Notes</h1>
       <CreateNoteForm />
       {editingNote && <EditNoteForm note={editingNote} onClose={() => setEditingNote(null)} />}
-      <NotesList onEdit={setEditingNote} />
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-4">Your Notes:</h2>
+        <NotesList 
+          onEdit={setEditingNote} 
+          // onDelete={handleDelete}
+        />
+      </div>
     </div>
   );
 };
