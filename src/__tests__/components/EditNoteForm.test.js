@@ -11,7 +11,7 @@ const fetchNotesMock = {
   },
   result: {
     data: {
-      notes: [
+      fetchNotes: [
         {
           id: "1",
           title: "Updated Title",

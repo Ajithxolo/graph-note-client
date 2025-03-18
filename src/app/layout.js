@@ -1,4 +1,5 @@
 // src/app/layout.js
+"use client";
 import ClientProviders from "./ClientProviders";
 import "./globals.css";
 

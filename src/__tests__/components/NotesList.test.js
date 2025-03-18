@@ -9,7 +9,7 @@ const mocks = [
     request: { query: FETCH_NOTES },
     result: {
       data: {
-        notes: [
+        fetchNotes: [
           {
             id: "1",
             title: "Test Note",
