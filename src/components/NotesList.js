@@ -1,49 +1,92 @@
 "use client";
 import { useQuery } from "@apollo/client";
 import { useEffect } from "react";
+import { 
+  VStack,
+  Box,
+  Heading,
+  Text,
+  Button,
+  Alert,
+  AlertIcon,
+  Skeleton,
+  useColorModeValue
+} from "@chakra-ui/react";
 import { FETCH_NOTES } from "@/graphql/queries";
 import DeleteNoteButton from "@/components/DeleteNoteButton";
 import { useNotes } from "@/context/NotesContext";
 
-export default function NotesList({ onEdit  }) {
+export default function NotesList({ onEdit }) {
   const { data, loading, error } = useQuery(FETCH_NOTES);
   const { setNoteCount } = useNotes();
+  const bgColor = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
   useEffect(() => {
     if (data && data.fetchNotes) {
       setNoteCount(data.fetchNotes.length);
     }
   }, [data, setNoteCount]);
-  if (loading) return <p className="text-gray-500">Loading notes...</p>;
-  if (error) return <p className="text-red-500">Error: {error.message}</p>;
-  if (!data || !data.fetchNotes) return <p className="text-gray-500">No notes found.</p>;
+
+  if (loading) return (
+    <VStack spacing={4} align="stretch">
+      {[1, 2, 3].map((i) => (
+        <Skeleton key={i} height="120px" borderRadius="lg" />
+      ))}
+    </VStack>
+  );
+
+  if (error) return (
+    <Alert status="error" borderRadius="md">
+      <AlertIcon />
+      Error: {error.message}
+    </Alert>
+  );
+
+  if (!data || !data.fetchNotes) return (
+    <Text color="gray.500" textAlign="center" py={4}>
+      No notes found.
+    </Text>
+  );
 
   return (
-    <ul className="space-y-4">
+    <VStack as="ul" spacing={4} align="stretch">
       {data.fetchNotes.map((note) => (
-        <li 
+        <Box 
+          as="li"
           key={note.id}
-          className="p-4 border rounded-lg shadow-sm bg-white"
+          p={4}
+          borderWidth="1px"
+          borderRadius="lg"
+          boxShadow="sm"
+          bg={bgColor}
+          borderColor={borderColor}
         >
-          <div className="mb-3">
-            <h3 className="text-lg font-semibold text-black">{note.title}</h3>
-            <p className="text-gray-600 mt-1 text-black">{note.body}</p>
-            <div className="mt-2 text-sm text-gray-500">
-              <span>Sentiment: {note.sentimentLabel} </span>
-              <span>({note.sentimentScore})</span>
-            </div>
-          </div>
+          <Box mb={3}>
+            <Heading as="h3" fontSize="lg" fontWeight="semibold" mb={2}>
+              {note.title}
+            </Heading>
+            <Text color="gray.600" mb={3}>
+              {note.body}
+            </Text>
+            <Text fontSize="sm" color="gray.500">
+              Sentiment: {note.sentimentLabel} ({note.sentimentScore})
+            </Text>
+          </Box>
           
-          <div className="flex gap-2 mt-3">
-            <button
+          <Box display="flex" gap={2} mt={3}>
+            <Button
               onClick={() => onEdit(note)}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+              colorScheme="blue"
+              size="sm"
+              variant="outline"
             >
               Edit
-            </button>
+            </Button>
             <DeleteNoteButton noteId={note.id} />
-          </div>
-        </li>
+          </Box>
+        </Box>
       ))}
-    </ul>
+    </VStack>
   );
 }

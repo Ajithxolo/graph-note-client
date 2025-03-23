@@ -2,85 +2,129 @@
 "use client";
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
+import { 
+  Box,
+  VStack,
+  Flex,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Button,
+  Alert,
+  AlertIcon,
+  Heading,
+  IconButton,
+  useToast
+} from "@chakra-ui/react";
+import { LuX } from "react-icons/lu";
 import { UPDATE_NOTE } from "@/graphql/mutations";
 import { FETCH_NOTES } from "@/graphql/queries";
 
 const EditNoteForm = ({ note, onClose }) => {
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
+  const toast = useToast();
 
   const [updateNote, { loading, error }] = useMutation(UPDATE_NOTE, {
     refetchQueries: [{ query: FETCH_NOTES }],
+    onCompleted: () => {
+      toast({
+        title: "Note updated",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      onClose();
+    },
+    onError: (error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await updateNote({ variables: { id: note.id, title, body } });
-    onClose();
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Edit Note</h2>
-          <button
-            type="button"
+    <Box
+      bg="white"
+      borderRadius="xl"
+      boxShadow="2xl"
+      p={6}
+      maxW="md"
+      w="full"
+    >
+      <VStack as="form" onSubmit={handleSubmit} spacing={4} align="stretch">
+        <Flex justify="space-between" align="center" mb={4}>
+          <Heading as="h2" fontSize="2xl" color="gray.800">
+            Edit Note
+          </Heading>
+          <IconButton
+            icon={<LuX />}
+            aria-label="Close edit form"
+            variant="ghost"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+            colorScheme="gray"
+          />
+        </Flex>
 
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg">
+          <Alert status="error" borderRadius="md">
+            <AlertIcon />
             Error: {error.message}
-          </div>
+          </Alert>
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Title
-          </label>
-          <input
-            type="text"
+        <FormControl>
+          <FormLabel>Title</FormLabel>
+          <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+            focusBorderColor="blue.500"
+            isRequired
           />
-        </div>
+        </FormControl>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Content
-          </label>
-          <textarea
+        <FormControl>
+          <FormLabel>Content</FormLabel>
+          <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            rows="4"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+            rows={4}
+            focusBorderColor="blue.500"
+            resize="vertical"
+            isRequired
           />
-        </div>
+        </FormControl>
 
-        <div className="flex gap-3 justify-end">
-          <button
+        <Flex gap={3} justify="flex-end" mt={4}>
+          <Button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            variant="outline"
+            colorScheme="gray"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+            colorScheme="blue"
+            isLoading={loading}
+            loadingText="Updating..."
           >
-            {loading ? "Updating..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
-    </div>
+            Save Changes
+          </Button>
+        </Flex>
+      </VStack>
+    </Box>
   );
 };
 

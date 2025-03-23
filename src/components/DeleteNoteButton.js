@@ -1,11 +1,32 @@
 "use client";
 import { useMutation } from "@apollo/client";
+import { Button, useToast } from "@chakra-ui/react";
+import { LuTrash2 } from "react-icons/lu";
 import { DELETE_NOTE } from "@/graphql/mutations";
 import { FETCH_NOTES } from "@/graphql/queries";
 
 const DeleteNoteButton = ({ noteId }) => {
+  const toast = useToast();
+  
   const [deleteNote, { loading, error }] = useMutation(DELETE_NOTE, {
     refetchQueries: [{ query: FETCH_NOTES }],
+    onCompleted: () => {
+      toast({
+        title: "Note deleted",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   });
 
   const handleDelete = async () => {
@@ -13,17 +34,17 @@ const DeleteNoteButton = ({ noteId }) => {
   };
 
   return (
-    <button
+    <Button
       onClick={handleDelete}
-      disabled={loading}
-      className={`px-3 py-1 text-sm rounded ${
-        loading 
-          ? 'bg-gray-400 cursor-not-allowed'
-          : 'bg-red-500 hover:bg-red-600 text-white'
-      }`}
+      colorScheme="red"
+      variant="outline"
+      size="sm"
+      leftIcon={<LuTrash2 />}
+      isLoading={loading}
+      loadingText="Deleting"
     >
-      {loading ? "Deleting..." : "Delete"}
-    </button>
+      Delete
+    </Button>
   );
 };
 

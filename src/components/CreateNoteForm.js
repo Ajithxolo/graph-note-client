@@ -2,72 +2,112 @@
 "use client";
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
+import { 
+  Box, 
+  FormControl, 
+  FormLabel, 
+  Input, 
+  Textarea, 
+  Button, 
+  Alert,
+  AlertIcon,
+  Heading,
+  useToast
+} from "@chakra-ui/react";
 import { CREATE_NOTE } from "@/graphql/mutations";
 import { FETCH_NOTES } from "@/graphql/queries";
 
 const CreateNoteForm = () => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const toast = useToast();
 
   const [createNote, { loading, error }] = useMutation(CREATE_NOTE, {
     refetchQueries: [{ query: FETCH_NOTES }],
+    onCompleted: () => {
+      toast({
+        title: "Note created",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setTitle("");
+      setBody("");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error creating note",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await createNote({ variables: { title, body } });
-    setTitle("");
-    setBody("");
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Create New Note</h2>
+    <Box 
+      bg="white" 
+      boxShadow="lg" 
+      borderRadius="lg" 
+      p={6} 
+      mb={8}
+    >
+      <form onSubmit={handleSubmit}>
+        <Heading as="h2" fontSize="2xl" mb={4} color="gray.800">
+          Create New Note
+        </Heading>
         
         {error && (
-          <div className="p-3 bg-red-50 text-red-700 rounded-lg">
+          <Alert status="error" mb={4} borderRadius="md">
+            <AlertIcon />
             Error: {error.message}
-          </div>
+          </Alert>
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Title
-          </label>
-          <input
+        <FormControl mb={4}>
+          <FormLabel>Title</FormLabel>
+          <Input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Note title"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+            focusBorderColor="blue.500"
+            colorScheme="blue"
           />
-        </div>
+        </FormControl>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Content
-          </label>
-          <textarea
+        <FormControl mb={6}>
+          <FormLabel>Content</FormLabel>
+          <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Note content"
             required
-            rows="4"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-black"
+            rows={4}
+            focusBorderColor="blue.500"
+            resize="vertical"
           />
-        </div>
+        </FormControl>
 
-        <button
+        <Button
           type="submit"
+          colorScheme="green"
+          width="full"
+          isLoading={loading}
+          loadingText="Creating..."
           disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:bg-green-400 disabled:cursor-not-allowed"
         >
-          {loading ? "Creating..." : "Create Note"}
-        </button>
+          Create Note
+        </Button>
       </form>
-    </div>
+    </Box>
   );
 };
 
